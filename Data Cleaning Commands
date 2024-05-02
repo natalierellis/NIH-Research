@@ -1,0 +1,68 @@
+#These are general data cleaning commands that I learned and used while performing data analysis at the NIH
+#Commands were designed to be applied to NIH datasets 
+#import xls file
+library("readxl")
+install.packages("writexl")
+library("writexl")
+metac <- read_excel("/Users/ellisnr/Desktop/Metabolite_Data.xlsx")
+#R resource (including R markdown)
+https://intro2r.com/r-markdown-anatomy.html 
+#remove first character of all column names of a dataframe
+rownames(results) <- substring(rownames(results), 2)
+results <- results %>% mutate(across(c('ID'),substr,2, nchar(ID)))
+#change first colname
+colnames(test)[1] = "Grouping"
+#convert first column to rownames
+rownames(FINAL) <-FINAL$Row.names
+rownames(methyl_PhenoAge) <- methyl_PhenoAge[,1]
+#convert first row to columnn names
+colnames(sample) <- sample[1,]
+#remove column 
+metac2 <- subset(metac2, select = -c(X.1))
+#remove row based on rowname
+Transformation <- Transformation[!(row.names(Transformation) %in% patients), ]
+#subset dataframe based on multiple column names
+ancova_test<-select(sample, "ID", "FTND_SmokingStatus")
+#convert character dataframe to numeric, remember to do matrix multiplication they must be numeric matrices
+methyl_PhenoAge_try <- mutate_all(methyl_PhenoAge_try, function(x) as.numeric(as.character(x)))
+#convert column of dataframe from character to numeric
+all1$residuals = as.numeric(as.character(all1$residuals))
+#install a package in R
+install.packages("sqldf")
+#creating a csv file from a dataframe
+write.csv(metac, "/Users/ellisnr/Desktop/metaclean.csv", row.names=TRUE)
+write_xlsx(values_V1, "/Users/ellisnr/Desktop/values_V1.xlsx")
+#make an array into a data frame
+as.data.frame()
+#convert matrix into data frame named "df"
+df <- as.data.frame(beta)
+#sort dataframe based on increasing numerical order of column names
+new_order = sort(colnames(all))
+all <- all[, new_order]
+#subset from existing data frame based on column names
+results <- subset(results, select = c('SID', 'Age', 'DNAmPhenoAge'))
+#merge two dataframes (one dataframe with column of other dataframe)
+ancova <- merge(EAA, sample, by="ID")
+#str() reports the class of the object, number and name of the columns, etc
+str(df)
+#to keep selected columns within a dataframe
+try<-select(ancova, FTND_SmokingStatus, AgeAdjustedGrimAge, AgeAdjustedGrimAge2, ID)
+#to exclude selected columns within dataframe
+select(surveys, -record_id, -species_id)
+#common elements of two lists
+meta %>% filter(is.na(LDL_Cholesterol_D1) & is.na(LDL_Cholesterol_D2)) %>% select(MRN,LDL_Cholesterol_D1, LDL_Cholesterol_D2 )
+#find and replace
+metac2 <- replace(metac2, metac2 == "HEMOLYZED", NA)
+##To include or exclude rows based on specific criteria, use filter()##
+##Combining select() and filter() to refine your data set##
+Smoking_sample <- try %>%
+  filter(FTND_SmokingStatus == "Smoker") %>%
+  select(ID, AgeAdjustedGrimAge2, AgeAdjustedGrimAge)
+##Use mutate() to create a new column from existing data by performing a calculation or other command##
+surveys %>%
+  mutate(weight_kg = weight / 1000)
+##The first few rows of the output are full of NAs; to remove those insert a filter() in the chain##
+surveys %>%
+  filter(!is.na(weight)) %>%
+  mutate(weight_kg = weight / 1000) %>%
+  head()
