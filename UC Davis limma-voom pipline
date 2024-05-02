@@ -1,0 +1,108 @@
+#RNA-Seq analysis pipeline used in undegraduate research
+#Pipeline was adapted from https://github.com/ucdavis-bioinformatics-training/2018-June-RNA-Seq-Workshop/blob/085d4121e49d1c1caccb0ce6035b3923c59d1f6c/thursday/DE.html 
+#Code represents type of analyses I ran as a Genomics research student; however, the code will not run because I no longer have access to the datasets that this pipeline was adapted for
+library(edgeR)
+allcounts <- read.delim("VTVRfeatureCounts_chloroRrnaFiltered3_VTmap.csv", row.names=1, sep=",", check.names=FALSE, na.strings="",header=T)
+library(dplyr)
+setwd("C:/Users/12817/OneDrive - Wake Forest University/Senior/Genomics Research")
+allcountsT <- select(allcounts, contains("R"))
+#file specific for Acacia RNASeq
+head(allcountsT)
+d0 <- DGEList(allcountsT)
+## view(allcountsT)to see it as a script?
+d0 <- calcNormFactors(d0, method="TMM")
+d0 #creates DGEList
+keepT1 <- rowSums(edgeR::cpm(d0) > 1) >= 20
+dT1 <- d0[keepT1,]
+keepT2 <- rowSums(edgeR::cpm(dT1) >=400) <1
+dT2 <- dT1[keepT2,]
+dT2 <- edgeR::cpm(dT1[keepT2,])
+#cutoff <- 1
+#drop <- which(apply(cpm(d0), 1, max) < cutoff)
+#d <- d0[-drop,]
+#dim(d)
+#cutoff <- 100
+#drop <- which(apply(cpm(d), 1, max) > cutoff)
+#d <- d[-drop,] 
+#filter low-expressed and high-expressed
+dim(dT2) # number of genes left
+anames <- colnames(allcountsT) # Sample names, looking at column headers
+anames
+timepoint <- factor(substr(anames, 1, 2)) 
+timepoint
+treatment <- factor(substr(anames, 3, 3))
+treatment
+group <- interaction(treatment, timepoint)
+group
+
+
+#it begins here
+mm <- model.matrix(~0 + group)
+#only need to specify this model once
+y <- voom(dT2, mm, plot = T)
+#this connects data to group headers
+fit <- lmFit(y, mm)
+head(coef(fit)) #names of different columns in model
+#setting up data for linear modeling 
+
+#which are being compared
+#all very similar to graduate student's pipeline 
+contr <- makeContrasts(groupD.R1 - groupD.R7, levels = colnames(coef(fit))) 
+contr
+#finding differences, runs between two points for every gene, creates a line connecting two 
+tmp <- contrasts.fit(fit, contr) 
+tmp <- eBayes(tmp)
+top.table <- topTable(tmp, sort.by = "p", n = Inf)
+head(top.table, 20)
+length(which(top.table$adj.P.Val < 0.05))
+top.table$Gene <- rownames(top.table)
+top.table <- top.table[,c("Gene", names(top.table)[1:6])]
+write.table(top.table, file = "R_D1vD7_onefactor.csv", row.names = F, sep = "\t", quote = F)
+input <- read.table("D1vD7one_factor.csv",sep=",",header=T)
+## or "input" can be the same as "top.table"
+df <- data.frame(input[,c(2,5)])
+
+volSIG <- list()
+for (i in 1:nrow(df)) {
+  if (df[i,2]<0.05) {
+    volSIG <- rbind(df[i,],volSIG)
+  }
+}
+
+# png('volcano1.png', 1200, 1200, type='cairo',res=220)
+plot(c(-6,-3,0,3,6),c(0,15,30,45,60),type="n",xlab="log2(Fold Change)",ylab="log2(p-value)")
+points(df[,1],-log2(df[,2]),pch=20,col="gray",cex=1)
+points(volSIG[,1],-log2(volSIG[,2]),pch=20,col="blue",cex=1)
+lines(c(0,0),c(-2,20),type="l",col="black",lwd=0.5,lty="dashed")
+lines(c(-10,10),c(-log2(0.05),-log2(0.05)),type="l",col="black",lwd=0.5,lty="dashed")
+
+##end of one factor model
+
+#beginning of two factor
+treatmentT <- relevel(factor(treatment), "W")
+#Watered is reference
+mm <- model.matrix(~treatmentT*timepoint)
+colnames(mm)
+y <- voom(d, mm, plot = F)
+fit <- lmFit(y, mm)
+head(coef(fit))
+tmp <- contrasts.fit(fit, coef = 2) # Directly test second coefficient
+tmp <- eBayes(tmp)
+top.table <- topTable(tmp, sort.by = "P", n = Inf)
+head(top.table, 20) #same model as before
+head(coef(fit))
+tmp <- contrasts.fit(fit, coef = 5) # Test cultivarI5:time9
+tmp <- eBayes(tmp)
+top.table <- topTable(tmp, sort.by = "P", n = Inf)
+head(top.table, 20)
+length(which(top.table$adj.P.Val < 0.05))
+batch <- factor(rep(rep(1:2, each = 2), 6))
+batch
+mm <- model.matrix(~0 + group + batch)
+y <- voom(d, mm, plot = F)
+fit <- lmFit(y, mm)
+contr <- makeContrasts(groupI5.6 - groupC.6, levels = colnames(coef(fit)))
+tmp <- contrasts.fit(fit, contr)
+tmp <- eBayes(tmp)
+top.table <- topTable(tmp, sort.by = "P", n = Inf)
+head(top.table, 20)
