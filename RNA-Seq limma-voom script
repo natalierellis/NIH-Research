@@ -1,6 +1,6 @@
 #RNA-Seq analysis pipeline used in undegraduate research
 #Pipeline was adapted from https://github.com/ucdavis-bioinformatics-training/2018-June-RNA-Seq-Workshop/blob/085d4121e49d1c1caccb0ce6035b3923c59d1f6c/thursday/DE.html 
-#Code represents type of analyses I ran as a Genomics research student; however, the code will not run because I no longer have access to the datasets that this pipeline was adapted for
+#Code represents type of analyses I ran as a Genomics research student; however, the following code is not designed to run given that I no longer have access to the datasets
 library(edgeR)
 allcounts <- read.delim("VTVRfeatureCounts_chloroRrnaFiltered3_VTmap.csv", row.names=1, sep=",", check.names=FALSE, na.strings="",header=T)
 library(dplyr)
