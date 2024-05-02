@@ -35,15 +35,17 @@ treatment
 group <- interaction(treatment, timepoint)
 group
 
+#creates MDS plot
+plotMDS(d, col = as.numeric(group))
 
-#it begins here
+#setting up data for linear modeling 
 mm <- model.matrix(~0 + group)
 #only need to specify this model once
 y <- voom(dT2, mm, plot = T)
 #this connects data to group headers
 fit <- lmFit(y, mm)
 head(coef(fit)) #names of different columns in model
-#setting up data for linear modeling 
+
 
 #which are being compared
 #all very similar to graduate student's pipeline 
