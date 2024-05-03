@@ -1,5 +1,4 @@
-My repository provides examples of code that I have used in past research projects at Wake Forest University and the NIH. 
+My repository provides examples of code that I have used in past research projects at Wake Forest University, the NIH, and the Statistics for Biomedical Researchers class I had taken while at the NIH. 
 
-Datasets are not linked to the code because they are proprietary.
-
+Publically 
 The scripts provide examples of the types of data cleaning, analysis, and visualization methods I performed in my roles.
