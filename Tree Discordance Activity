@@ -1,3 +1,6 @@
+#tree discordance between two alignments of the same gene was calculated
+#professor was consulted to match and trim the two trees 
+
 #read alignments
 library(phangorn)
 library(phytools)
