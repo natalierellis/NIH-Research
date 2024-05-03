@@ -7,7 +7,7 @@ library(phytools)
 library(ape)
 
 #BUILD tree topology (start here) - TNF gene from UCSC alignment
-dat=read.phyDat("https://github.com/natalierellis/Programming-Experience/blob/main/TNF%20(1).fasta", type="AA", format="fasta")
+dat=read.phyDat("TNF (1).fasta", type="AA", format="fasta")
 dm=dist.ml(dat)
 tree=fastme.bal(dm) #build a distance-based "starter tree"
 fit=pml(tree,dat,k=4,inv=.2)
