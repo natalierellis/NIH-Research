@@ -21,7 +21,7 @@ plot(tree4)
 title(main="TNF Hiller", font.main=60)
 
 #BUILD tree topology (start here) - TNF gene from Hiller alignment
-dat=read.phyDat("/Users/ellisnr/Desktop/TNF (1).phy", type="AA", format="phy")
+dat=read.phyDat("TNF (1).phy", type="AA", format="phy")
 dm=dist.ml(dat)
 tree=fastme.bal(dm) #build a distance-based "starter tree"
 fit=pml(tree,dat,k=4,inv=.2)
