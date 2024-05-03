@@ -1,7 +1,7 @@
 #The task was to apply the modeling techniques that we had learned to create the best-fitting model based on R squared.
 #This script does not include the exploratory analyses I performed to understand the data but is simplified 
 #I understand now that using 19 features is unncessary and my model was probably over-fitting the data, but I had a lot of fun with this assignment
-HP<-read.csv("/Users/ellisnr/Desktop/postbac resources/Statistics & Writing/Stats Class/Week 2/HousePrices.csv")
+HP<-read.csv("HousePrices.csv")
 #remove variables that cannot contribute
 HP <- HP[,-1]
 HP <- HP[,-14]
