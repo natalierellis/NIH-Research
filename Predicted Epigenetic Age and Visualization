@@ -1,7 +1,8 @@
 #basic machine learning analyses
 #after scaling variables and creating model investigating association of AUD with EAA and controlling for covariates (BMI, sex, smoking status, race, etc.),
-#we used the predict() function to calculate mean EAA after controlling for covariates in specific subgroups
+#we used the predict() function to calculate mean EAA in specific subgroups
 #I visualized these predicted differences with bar charts, comparing EAA as calculated by GrimAge Version 1 and GrimAge Version 2
+
 #scale variables
 EAA$normalizedAST <- scale(EAA$AST)
 EAA2$normalizedAST <- scale(EAA2$AST)
