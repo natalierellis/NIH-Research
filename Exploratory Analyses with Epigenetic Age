@@ -5,9 +5,7 @@
 to calcuate the epigenetic age of our patients 
 #We then calculated descriptive statistics within subgroups and explored the association of cardiometabolic and other risk factors with epigenetic age acceleration (EAA),
 which is age-adjusted epigenetic age
-#our analyses involved multiple linear regression 
-#look at association of highest and lowest GGT values and epigenetic among in all samples 
-#most of my research was exploratory analyses of research questions that my supervisor was interested in 
+#Our analyses involved multiple linear regression 
 
 #association of extreme GGT patients (both high and low) with EAA
 EAA <- F[,c(2,218, 217, 171, 219, 220, 221, 222, 209, 176, 175, 174, 173, 172, 169, 166,38, 39, 40, 41, 42)]
