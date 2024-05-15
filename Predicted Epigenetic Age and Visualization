@@ -1,7 +1,9 @@
 #basic machine learning analyses
 #after scaling variables and creating model investigating association of AUD with EAA and controlling for covariates (BMI, sex, smoking status, race, etc.),
 #we used the predict() function to calculate mean EAA in specific subgroups
-#I visualized these predicted differences with bar charts, comparing EAA as calculated by GrimAge Version 1 and GrimAge Version 2
+#the predict function calculates the EAA of each patient after controlling for covariates 
+#we then could directly observe the effect of AUD on EAA age differences between cohorts stratified by sex, race, etc. 
+#I visualized these predicted differences with bar charts, comparing predicted EAA as calculated by GrimAge Version 1 and GrimAge Version 2 (two epigenetic clocks)
 
 #scale variables
 EAA$normalizedAST <- scale(EAA$AST)
@@ -25,6 +27,7 @@ EAA1 <- EAA1[EAA$AUD_Group.y == 'AUD+',]
 EAA2 <- EAA2[EAA$AUD_Group.y == 'AUD+',]
 
 #Age-adjusted GrimAge:
+#run model and merge predicted EAA values with original dataset
 mod2=lm(AgeAdjustedGrimAge2~BMI+relevel(as.factor(AUD_Group.y), ref="HC")+relevel(as.factor(Female.y), ref =1)+FTND_SmokingStatus+race1+CD8T+CD4T+NK+Mono+Bcell, data=EAA)
 summary(mod2)
 predict<-predict(mod2)
@@ -36,6 +39,7 @@ library(tidyverse)
 library(rstatix)
 is.numeric(new$try)
 is.numeric(new$Female.y)
+#stratify based on characteristic, like sex
 predict_V1$AgeGrouping <- ifelse(predict_V1$Age.y<40, "Young",
                        ifelse(predict_V1$Age.y=>40, "Old", NA))
 
@@ -44,7 +48,7 @@ predict_V2$AgeGrouping <- ifelse(predict_V2$Age.y==1, 1,
 
 predict_V2$AgeGrouping <- ifelse(predict_V2$Age.y>= 40, "Old", "Young")
 
-#USE ME
+#calculate mean EAA and error bars for bar chart for EAA Version 1 and EAA Version 2
 #Version 1
 values_V1 <- predict_V1 %>%
   group_by(Female.y) %>%
@@ -66,6 +70,9 @@ values_V2[1,2] <- "4"
 numeric(values_V1[4,2])
 values_V2$AgeGrouping<-as.numeric(as.character(values_V2$AgeGrouping))
 
+#we created two plots: one for Version 1 and one for Version 2
+#Each plot contained mean predicted EAA within young + HC, old + HC, young + AUD, and old + AUD cohorts 
+#we were trying to disentangle the effect of AUD status and age on EAA
 #Version 1
 library(ggplot2)
 p <- ggplot(values_V1, aes(x = reorder(AUD_Group.y, AgeGrouping), 
@@ -91,20 +98,3 @@ p <- ggplot(values_V2, aes(x = reorder(AUD_Group.y, AgeGr),
 p
 ggsave(p, filename = "/Users/ellisnr/Desktop/Version1.png")
 
-#try young and old again 
-
-predict_V2_ <- predict_V2[,c(2,23)]
-predict <- merge(predict_V1, predict_V2_, by = "ID")
-library(dplyr)
-values_v1 <- predict %>%
-  group_by(AgeGrouping) %>%
-  summarise(mean = mean(Predicted.x),
-            std.error(Predicted.x))
-values_v1$CImin <- values_v1$mean - values_v1$`std.error(Predicted.x)`*1.96
-values_v1$CImax <- values_v1$mean + values_v1$`std.error(Predicted.x)`*1.96
-values_v2 <- predict %>%
-  group_by(AgeGrouping) %>%
-  summarise(mean = mean(Predicted.y),
-            std.error(Predicted.y))
-values_v2$CImin <- values_v2$mean - values_v2$`std.error(Predicted.y)`*1.96
-values_v2$CImax <- values_v2$mean + values_v2$`std.error(Predicted.y)`*1.96
