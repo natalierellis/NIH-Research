@@ -5,9 +5,11 @@
 to calcuate the epigenetic age of our patients 
 #We then calculated descriptive statistics within subgroups and explored the association of cardiometabolic and other risk factors with epigenetic age acceleration (EAA),
 which is age-adjusted epigenetic age
+#AUD refers to Alcoholic Use Disorder or patients that have been diagnosed with this disorder
+#GGT, ALT, AST are liver enzymes that are associated with liver health 
 #Our analyses involved multiple linear regression 
 
-#association of extreme GGT patients (both high and low) with EAA
+#For example, we explored the association of extreme GGT levels (both high and low) with EAA
 EAA <- F[,c(2,218, 217, 171, 219, 220, 221, 222, 209, 176, 175, 174, 173, 172, 169, 166,38, 39, 40, 41, 42)]
 #GGT quantiles for both samples 
 quantile(EAA$GGT)
@@ -29,7 +31,7 @@ summary(mod)
 mod=lm(AgeAdjustedGrimAge2~relevel(as.factor(Grouping), ref="Lowest")+relevel(as.factor(AUD_Group.y), ref="HC")+race1+CD8T+CD4T+NK+Mono+Bcell+Female.y+FTND_SmokingStatus+BMI, data=EAA)
 summary(mod)
 
-#association of extreme alcohol consumption with EAA
+#Next, we explored the association of extreme alcohol consumption variables with EAA
 #alcohol consumption variables
 quantile(EAA$HeavyDrinkDays, na.rm = TRUE)
 hist(EAA$HeavyDrinkDays)
@@ -54,7 +56,9 @@ mod=lm(AgeAdjustedGrimAge2~relevel(as.factor(Grouping), ref="Lowest")+race1+CD8T
 summary(mod)
 
 hist(EAA$AUD_Group.y)
-#look at association of highest and lowest GGT values and epigenetic among in only AUD samples 
+#Then, we would looked at the association of highest and lowest GGT values and EAA among in only AUD samples. Our first analyses
+# did not show much signal, so we were interested to see if a signal was present only in the AUD sample. 
+hist(EAA$AUD_Group.y)
 EAA <- F[,c(2,218, 217, 171, 219, 220, 221, 222, 209, 176, 175, 174, 173, 172, 169, 166,38, 39, 40, 41, 42)]
 AUD <- EAA[EAA$AUD_Group.y == 'AUD+',]
 quantile(AUD$HeavyDrinkDays, na.rm = TRUE)
@@ -77,8 +81,9 @@ summary(mod)
 mod=lm(AgeAdjustedGrimAge2~Grouping+race1+CD8T+CD4T+NK+Mono+Bcell+Female.y+FTND_SmokingStatus+BMI, data=AUD)
 summary(mod)
 
-#look at chronological age in healthy and alcoholic cohorts 
-#also plot mean EAA of each 
+#Some descriptive stats analyses we performed included visualizing the relationship in chronological age and EAA in only the AUD cohort
+#and only the healthy control cohort
+
 EAA <- F[,c(165, 2,218, 217, 171, 219, 220, 221, 222, 209, 176, 175, 174, 173, 172, 169, 166,38, 39, 40, 41, 42)]
 EAA <- EAA[EAA$AUD_Group.y == 'AUD+',]
 EAA <- EAA[EAA$AUD_Group.y == 'HC',]
@@ -104,40 +109,9 @@ EAA %>%
   theme(axis.text.y=element_text(size=12))
   #stat_compare_means(method = "t.test", label.y.npc = 0.55, label.x.npc = 0.3)
 
-EAA <- EAA[!(EAA$Grouping %in% "Unneeded"),]
-AUD <- AUD[!(AUD$Grouping %in% NA),]
+#Because the descriptive visualizatons do not control for covariates, we would then run a linear model to see whether the variable of interest,
+# when account for covariates, was associated with EAA
+#Our analyses were exploratory and our research questions (and therefore what we were analyzing) changed constantly as we received input
+#from our PI
 
-#age adjusted grim age2 
-mod=lm(AgeAdjustedGrimAge2~relevel(as.factor(Grouping), ref="Lowest")+race1+CD8T+CD4T+NK+Mono+Bcell+Female.y+FTND_SmokingStatus+BMI, data=EAA)
-summary(mod)
-
-#histogram exploration
-library(ggplot2)
-library(dplyr)
-install.packages("hrbrthemes")
-library(hrbrthemes)
-hist <- EAA %>%
-  ggplot( aes(x=AgeAdjustedGrimAge, fill=AUD_Group.y)) +
-  geom_histogram(aes(y = after_stat(count / sum(count)))) +
-  scale_y_continuous(labels = scales::percent)+
-  geom_histogram( color="#e9ecef", alpha=0.6, position = 'identity') +
-  scale_fill_manual(values=c("#69b3a2", "#404080")) +
-  stat_bin(bins = 30)
-  theme_ipsum() +
-  labs(fill="") 
-plot(hist)
-
-#chronological age analysis - linear model applied
-EAA <- F[,c(2,218, 217, 171, 219, 220, 221, 222, 209, 176, 175, 174, 173, 172, 169, 166,38, 39, 40, 41, 42)]
-quantile(EAA$Age.y)
-quantile(EAA$DNAmGrimAgeBasedOnRealAge)
-EAA$Grouping <- ifelse(EAA$Age.y<=29.820,"Young",
-                       ifelse(EAA$Age.y>=51.065, "Old",
-                              ifelse(EAA$Age.y<51.065, "Unneeded",
-                                     ifelse(EAA$Age.y>29.820, "Unneeded",
-                                            ifelse(EAA$Age.y==NA, "Unneeded")))))
-EAA <- EAA[!(EAA$Grouping %in% "Unneeded"),]
-EAA <- EAA[!(EAA$Grouping %in% NA),]
-mod=lm(AgeAdjustedGrimAge~relevel(as.factor(Grouping), ref="Young")+relevel(as.factor(AUD_Group.y), ref="HC")+race1+CD8T+CD4T+NK+Mono+Bcell+Female.y+FTND_SmokingStatus+BMI, data=EAA)
-summary(mod)
 
