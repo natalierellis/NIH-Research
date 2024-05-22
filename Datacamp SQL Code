@@ -1,3 +1,12 @@
+-- Created following code to analyze international students' mental health in Datacamp project
+
+SELECT stay, COUNT(inter_dom) AS count_int, ROUND(AVG(todep),2) AS average_phq,ROUND(AVG(tosc),2) AS average_scs, ROUND(AVG(toas),2) AS average_as
+FROM students
+WHERE inter_dom LIKE 'I%'
+GROUP BY stay
+HAVING stay IS NOT NULL
+ORDER BY stay DESC;
+
 -- Add your own queries here
 -- to select all column headers from the dataframe books
 SELECT * 
