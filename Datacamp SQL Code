@@ -159,3 +159,43 @@ HAVING AVG(budget) > 60000000
 -- Order the results from highest to lowest average gross and limit to one
 ORDER BY avg_gross DESC
 LIMIT 1;
+
+
+--join tables
+SELECT 
+FROM prime_ministers
+INNER JOIN presidents
+ON prime_ministers.country = presidents.country;
+
+-- Select fields with aliases
+SELECT c.code AS country_code, name, year, inflation_rate
+FROM countries AS c
+-- Join to economies (alias e)
+INNER JOIN economies AS e
+-- Match on code field using table aliases
+ON c.code = e.code;
+
+--joining using USING
+SELECT c.name AS country, l.name AS language, official
+FROM countries AS c
+INNER JOIN languages AS l
+-- Match using the code column
+USING (code)
+
+--two joins
+SELECT name, fertility_rate, e.year, e.unemployment_rate
+FROM countries AS c
+INNER JOIN populations AS p
+ON c.code = p.country_code
+-- Join to economies (as e)
+INNER JOIN economies AS e
+-- Match on country code
+ON c.code = e.code
+-- Add an additional joining condition such that you are also joining on year
+	AND e.year = p.year;
+	
+--left join (all records in left table and records in right that match)
+--replace "INNER" with "LEFT"
+
+--full join retains all ids, even if not matched
+--replace "INNER" with "FULL"
