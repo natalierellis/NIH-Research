@@ -7,6 +7,8 @@ GROUP BY stay
 HAVING stay IS NOT NULL
 ORDER BY stay DESC;
 
+--the following lines of code are queries I have learned and applied in practice problems while completing the SQL Data Analyst track through Datacamp
+
 -- Add your own queries here
 -- to select all column headers from the dataframe books
 SELECT * 
