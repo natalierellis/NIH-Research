@@ -33,71 +33,6 @@ p <- ggplot(AgePlot, aes(x=Version, y=EAA, fill=Age)) +
 
 p + scale_fill_brewer(palette="Paired") + theme_classic()
 
-#actual forest plot code
-ForestPlot2 <-read.csv("/Users/ellisnr/Desktop/example.csv")
-library(ggforestplot)
-ggforestplot::forestplot(
-  df = ForestPlot2,
-  name = ID.outcome,
-  estimate = Beta.,
-  se = se, 
-  colour = QTL.source, name="viridis" )
-
-#to choose fun colors 
-display_ng_colours()
-ng_palette_d(name = "viridis")(5)
-
-#try another one 
-library(ggplot2)
-library(magrittr)
-df <-
-  # Use built-in demo dataset
-  df_linear_associations %>%
-  # Arrange by name in order to filter the first few biomarkers for more
-  # than one studies
-  dplyr::arrange(name) %>%
-  # Estimate confidence intervals
-  dplyr::mutate(
-    xmin = beta - qnorm(1 - (1 - 0.95) / 2) * se,
-    xmax = beta + qnorm(1 - (1 - 0.95) / 2) * se
-  ) %>%
-  # Select only first 30 rows (10 biomarkers)
-  dplyr::filter(dplyr::row_number() <= 30) %>%
-  # Add a logical variable for statistical significance
-  dplyr::mutate(filled = pvalue < 0.001)
-
-g <-
-  ggplot(data = df, aes(x = beta, y = name)) +
-  # And point+errorbars
-  geom_effect(
-    ggplot2::aes(
-      xmin = xmin,
-      xmax = xmax,
-      colour = trait,
-      shape = trait,
-      filled = filled
-    ),
-    position = ggstance::position_dodgev(height = 0.5)
-  )
-print(g)
-
-# Add custom theme, horizontal gray rectangles, vertical line to signify the
-# NULL point, custom color palettes.
-g <-
-  g +
-  # Add custom theme
-  theme_forest() +
-  # Add striped background
-  geom_stripes() +
-  # Add vertical line at null point
-  geom_vline(
-    xintercept = 0,
-    linetype = "solid",
-    size = 0.4,
-    colour = "black"
-  )
-print(g)
-
 library(ggplot2)
 install.packages("ggpubr")
 library(ggpubr)
@@ -113,15 +48,33 @@ p
 ggsave(p, filename = "/Users/ellisnr/Desktop/LDLHDLratio.png")
  
 
-#manhatten plot  
+##Manhatten plots script
+#the following script can be used to create manhatten plots from subsetted supplemental tables 
+#once each outcome file is downloaded and read into R, the scripts should run according to each file
+##a manhatten plot is performed for each outcome
 library(ggplot2)
 library(dplyr)
 library(gridExtra)
 library(ggrepel)
-data <- read.csv("/Users/ellisnr/Desktop/example.csv")
-p <- ggplot(data, aes(Target, -log10(P))) +
-  geom_point(aes(color = ifelse(P < 0.05, "gold", "blue")), size = 4, stat = "identity", position = "dodge") + 
-  geom_label_repel(aes(label = ifelse(overlap =="Both", as.character(Gene.Exposure), "")),  max.overlaps = Inf,fill="white", box.padding = 0.5, point.padding = 0.5, direction = "y", size = 3) +
+#first create outcome files (these are subset from supplemental tables where only results from IVW or WR are taken)
+#these have been created, labeled, and included in this replication folder 
+
+#AIF
+#download AIF file 
+AIF <- read.csv("/Users/ellisnr/Desktop/Dan Projects/AIF.csv")
+#create column based upon a conditional to label the points above the P-value threshold 
+p <- ggplot(AIF, aes(QTL.source, -log10(Pvalue))) +
+  geom_point(aes(color = ifelse(Pvalue < 0.05, "red", "blue")), 
+             size = 4, 
+             stat = "identity", 
+             position = "dodge") + 
+  geom_label_repel(aes(label = ifelse(Pvalue < 0.05, as.character(hgnc.Symbol), "")),  
+                   max.overlaps = Inf,
+                   fill="white", 
+                   box.padding = 0.5, 
+                   point.padding = 0.5, 
+                   direction = "y", 
+                   size = 3) +
   theme_bw() +
   theme(
     axis.text.x = element_text(size = 14, angle = 60, hjust = 1), # Rotate x-axis labels
@@ -129,29 +82,137 @@ p <- ggplot(data, aes(Target, -log10(P))) +
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
     panel.border = element_blank(),
+    axis.line = element_line(),
+    axis.title.x=element_text(color="black"),
     legend.position = "none"  # Hide the legend
   ) +
   geom_hline(yintercept = 1.301, linetype = "dashed", color = "red") + # Add a horizontal line at y = -log(P-value threshold), e.g., P-value < 0.05 #would have a 1.301 intercept
   scale_y_continuous(limits = c(0, 5), expand = c(0, 0)) + # Set y-axis limits from 0 to 5 and remove space
   xlab("") + # Add x-axis label
-  ylab("Posterior probabilty of colocalizaiton")
+  ylab("-log10(P)")+
+  ggtitle("Alcohol Intake Frequency")
 p
 
-#write out to pdf of specific size/resolution
+#repeat for next three outcomes
 
-file_path <- "~/path/filename.pdf"
-# Save the plot as a PDF with proper scaling
-ggsave(file_path, plot = p.binge, width = 13, height = 10, units = "in", dpi = 300)
+#drinks per week
+#I had to add arguments to the geom_label_repel function so the labels would not overlap
+DPW <- read.csv("/Users/ellisnr/Desktop/Dan Projects/Manhatten Plot Replication /DPW.csv")
+#create column based upon a conditional to label the points above the P-value threshold 
+p <- ggplot(DPW, aes(QTL.source, -log10(Pvalue))) +
+  geom_point(aes(color = ifelse(Pvalue < 0.05, "red", "blue")), 
+             size = 4, 
+             stat = "identity", 
+             position = "dodge") + 
+  geom_label_repel(aes(label = ifelse(Pvalue < 0.05, as.character(hgnc.Symbol), "")),  
+                   max.overlaps = Inf,
+                   fill="white", 
+                   box.padding = 0.25, 
+                   point.padding = 0.5, 
+                   direction = "y", 
+                   force = 6,
+                   force_pull = 2,
+                   size = 3) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(size = 14, angle = 60, hjust = 1), # Rotate x-axis labels
+    axis.text.y = element_text(size = 14),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(),
+    axis.title.x=element_text(color="black"),
+    legend.position = "none"  # Hide the legend
+  ) +
+  geom_hline(yintercept = 1.301, linetype = "dashed", color = "red") + # Add a horizontal line at y = -log(P-value threshold), e.g., P-value < 0.05 #would have a 1.301 intercept
+  scale_y_continuous(limits = c(0, 5), expand = c(0, 0)) + # Set y-axis limits from 0 to 5 and remove space
+  xlab("") + # Add x-axis label
+  ylab("-log10(P)")+
+  ggtitle("Drinks per Week")
+p
 
+#binge drinking
+binge <- read.csv("/Users/ellisnr/Desktop/Dan Projects/Manhatten Plot Replication /binge.csv")
+#create column based upon a conditional to label the points above the P-value threshold 
+p <- ggplot(binge, aes(QTL.source, -log10(Pvalue))) +
+  geom_point(aes(color = ifelse(Pvalue < 0.05, "red", "blue")), 
+             size = 4, 
+             stat = "identity", 
+             position = "dodge") + 
+  geom_label_repel(aes(label = ifelse(Pvalue < 0.05, as.character(hgnc.Symbol), "")),  
+                   max.overlaps = Inf,
+                   fill="white", 
+                   box.padding = 0.5, 
+                   point.padding = 0.5, 
+                   direction = "y", 
+                   size = 3) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(size = 14, angle = 60, hjust = 1), # Rotate x-axis labels
+    axis.text.y = element_text(size = 14),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(),
+    axis.title.x=element_text(color="black"),
+    legend.position = "none"  # Hide the legend
+  ) +
+  geom_hline(yintercept = 1.301, linetype = "dashed", color = "red") + # Add a horizontal line at y = -log(P-value threshold), e.g., P-value < 0.05 #would have a 1.301 intercept
+  scale_y_continuous(limits = c(0, 5), expand = c(0, 0)) + # Set y-axis limits from 0 to 5 and remove space
+  xlab("") + # Add x-axis label
+  ylab("-log10(P)")+
+  ggtitle("Binge Drinking")
+p
+
+#PAU
+PAU <- read.csv("/Users/ellisnr/Desktop/Dan Projects/Manhatten Plot Replication /PAU.csv")
+#create column based upon a conditional to label the points above the P-value threshold 
+p <- ggplot(PAU, aes(QTL.source, -log10(Pvalue))) +
+  geom_point(aes(color = ifelse(Pvalue < 0.05, "red", "blue")), 
+             size = 4, 
+             stat = "identity", 
+             position = "dodge") + 
+  geom_label_repel(aes(label = ifelse(Pvalue < 0.05, as.character(hgnc.Symbol), "")),  
+                   max.overlaps = Inf,
+                   fill="white", 
+                   box.padding = 0.5, 
+                   point.padding = 0.5, 
+                   direction = "y", 
+                   size = 3) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(size = 14, angle = 60, hjust = 1), # Rotate x-axis labels
+    axis.text.y = element_text(size = 14),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(),
+    axis.title.x=element_text(color="black"),
+    legend.position = "none"  # Hide the legend
+  ) +
+  geom_hline(yintercept = 1.301, linetype = "dashed", color = "red") + # Add a horizontal line at y = -log(P-value threshold), e.g., P-value < 0.05 #would have a 1.301 intercept
+  scale_y_continuous(limits = c(0, 5), expand = c(0, 0)) + # Set y-axis limits from 0 to 5 and remove space
+  xlab("") + # Add x-axis label
+  ylab("-log10(P)")+
+  ggtitle("Problematic Alcohol Use")
+p
+
+
+
+#forest plot with CI and P-value table
+#first make forest plot
+example <- read.csv("/Users/ellisnr/Desktop/Dan Projects/Forest Plot Replication/example.csv")
 library(ggplot2)
+library(viridis)
 forest <- ggplot(
   data = example,
   aes(x = QTL.source, y = rr, ymin = low_ci, ymax = up_ci)
 ) +
   geom_pointrange(aes(col = QTL.source)) +
+  scale_color_viridis(discrete = TRUE, option = "D")+
   geom_hline(yintercept = 0, colour = "red") +
-  xlab("Treatment") +
-  ylab("RR (95% Confidence Interval)") +
+  xlab("QTL Source") +
+  ylab("95% Confidence Interval") +
   geom_errorbar(aes(ymin = low_ci, ymax = up_ci, col = QTL.source), width = 0, cex = 1) +
   theme_classic() +
   facet_wrap(~X, strip.position = "top", nrow = 9, scales = "free_y")+
@@ -160,20 +221,30 @@ forest <- ggplot(
     strip.text.y = element_text(face = "bold", size = 12),
     strip.text = element_text(face = "bold"),
     legend.position = "none",
-    axis.text = element_text(face = "bold"),
+    #axis.text = element_text(face = "bold"),
     axis.title = element_text(face = "bold"),
     plot.title = element_text(face = "bold", hjust = 0.5, size = 13)
   )+
-coord_flip()
+  coord_flip()
 forest
-library(dplyr)
-dat_table <- tester %>%
-  select(treatmentgroup, X, RR_ci, rr) %>%
-  mutate(rr = sprintf("%0.1f", round(rr, digits = 1))) %>%
-  tidyr::pivot_longer(c(rr, RR_ci), names_to = "stat") %>%
-  mutate(stat = factor(stat, levels = c("rr", "RR_ci")))
 
-table_base <- ggplot(dat_table, aes(stat, treatmentgroup, label = value)) +
+#then make table with CI and P-values
+#attaching the table to the forest plot is difficult, and the following code needs to be debugged
+#if the values in the table pdf that I have provided need to be changed, I would 
+#open the table in adobe and manually revise 
+library(dplyr)
+example$Pvalue = as.character(example$Pvalue)
+try <- as.data.frame(t(example))
+try <- 
+table <- try %>%
+  select(QTL.source, X, RR_ci, Pvalue) %>%
+  #mutate(Pvalue = sprintf("%0.1f", round(Pvalue, digits = 3))) %>%
+  tidyr::pivot_longer(c(RR_ci, 
+                        Pvalue), 
+                      names_to = "stat") %>%
+  mutate(stat = factor(stat, levels = c("Beta (95% CI)", "P-value")))
+
+table_base <- ggplot(table, aes(stat, QTL.source, label = value)) +
   geom_text(size = 3) +
   scale_x_discrete(position = "top", labels = c("rr", "95% CI")) +
   facet_wrap(~X, strip.position = "top", ncol = 1, scales = "free_y", labeller = labeller(X = c(Cancer = "", COPD = ""))) +
@@ -190,14 +261,11 @@ table_base <- ggplot(dat_table, aes(stat, treatmentgroup, label = value)) +
     axis.title = element_text(face = "bold"),
   )
 table_base
-forest + table_base + plot_layout(widths = c(10, 4))
-ggplot_add(forest+table_base)
-install.packages("cowplot")
-library(cowplot)
-bottom <- plot_grid(forest + table_base)
-
-
-  ),
-  X = c("COPD", "COPD", "COPD", "COPD", "COPD", "COPD", "Cancer", "Cancer", "Cancer", "Cancer", "Cancer", "Cancer"),
-  no = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
-)
+table <- table %>%
+  select(QTL.source, X, RR_ci, Pvalue) %>%
+  mutate(RR_ci = as.numeric(RR_ci)) %>%
+  tidyr::pivot_longer(
+    cols = c(RR_ci, Pvalue),
+    names_to = "stat"
+  ) %>%
+  mutate(stat = factor(stat, levels = c("Beta (95% CI)", "P-value")))
