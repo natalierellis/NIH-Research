@@ -1,110 +1,87 @@
-#RNA-Seq analysis pipeline used in undegraduate research
-#Pipeline was adapted from https://github.com/ucdavis-bioinformatics-training/2018-June-RNA-Seq-Workshop/blob/085d4121e49d1c1caccb0ce6035b3923c59d1f6c/thursday/DE.html 
-#Code represents type of analyses I ran as a Genomics research student; however, the following code is not designed to run given that I no longer have access to the datasets
+# RNA-Seq Analysis Pipeline
+# This pipeline was used in undergraduate research to analyze RNA-Seq data.
+# Code adapted from the UC Davis RNA-Seq Workshop (https://github.com/ucdavis-bioinformatics-training/2018-June-RNA-Seq-Workshop).
+# Note: This code is not designed to run as the original datasets are no longer accessible.
+
+# Load necessary libraries
 library(edgeR)
-allcounts <- read.delim("VTVRfeatureCounts_chloroRrnaFiltered3_VTmap.csv", row.names=1, sep=",", check.names=FALSE, na.strings="",header=T)
 library(dplyr)
+
+# Set working directory (adjust to your file location)
 setwd("C:/Users/12817/OneDrive - Wake Forest University/Senior/Genomics Research")
+
+# Step 1: Read in data
+allcounts <- read.delim("VTVRfeatureCounts_chloroRrnaFiltered3_VTmap.csv", 
+                        row.names = 1, sep = ",", 
+                        check.names = FALSE, na.strings = "", header = TRUE)
+
+# Filter columns to include only relevant RNA-Seq samples
 allcountsT <- select(allcounts, contains("R"))
-#file specific for Acacia RNASeq
-head(allcountsT)
+
+# Step 2: Create DGEList object for downstream analysis
 d0 <- DGEList(allcountsT)
-## view(allcountsT)to see it as a script?
-d0 <- calcNormFactors(d0, method="TMM")
-d0 #creates DGEList
-keepT1 <- rowSums(edgeR::cpm(d0) > 1) >= 20
+
+# Normalize data using TMM (Trimmed Mean of M-values) method
+d0 <- calcNormFactors(d0, method = "TMM")
+
+# Filter lowly expressed genes
+keepT1 <- rowSums(edgeR::cpm(d0) > 1) >= 20  # Keep genes expressed in at least 20 samples
 dT1 <- d0[keepT1,]
-keepT2 <- rowSums(edgeR::cpm(dT1) >=400) <1
+
+# Optional: Filter highly expressed genes if necessary
+keepT2 <- rowSums(edgeR::cpm(dT1) >= 400) < 1  # Remove genes expressed extremely high
 dT2 <- dT1[keepT2,]
-dT2 <- edgeR::cpm(dT1[keepT2,])
-#cutoff <- 1
-#drop <- which(apply(cpm(d0), 1, max) < cutoff)
-#d <- d0[-drop,]
-#dim(d)
-#cutoff <- 100
-#drop <- which(apply(cpm(d), 1, max) > cutoff)
-#d <- d[-drop,] 
-#filter low-expressed and high-expressed
-dim(dT2) # number of genes left
-anames <- colnames(allcountsT) # Sample names, looking at column headers
-anames
-timepoint <- factor(substr(anames, 1, 2)) 
-timepoint
-treatment <- factor(substr(anames, 3, 3))
-treatment
-group <- interaction(treatment, timepoint)
-group
 
-#creates MDS plot
-plotMDS(d, col = as.numeric(group))
+# Step 3: Set up metadata for experimental groups
+anames <- colnames(allcountsT)  # Extract sample names
+timepoint <- factor(substr(anames, 1, 2))  # Extract timepoint (first two characters)
+treatment <- factor(substr(anames, 3, 3))  # Extract treatment group (third character)
+group <- interaction(treatment, timepoint)  # Create interaction of treatment and timepoint
 
-#setting up data for linear modeling 
-mm <- model.matrix(~0 + group)
-#only need to specify this model once
-y <- voom(dT2, mm, plot = T)
-#this connects data to group headers
-fit <- lmFit(y, mm)
-head(coef(fit)) #names of different columns in model
+# Step 4: Create MDS plot for quality control
+plotMDS(dT2, col = as.numeric(group))
 
+# Step 5: Linear modeling using voom
+mm <- model.matrix(~0 + group)  # Design matrix for groups
+y <- voom(dT2, mm, plot = TRUE)  # Apply voom transformation
+fit <- lmFit(y, mm)  # Fit linear model
 
-#which are being compared
-#all very similar to graduate student's pipeline 
-contr <- makeContrasts(groupD.R1 - groupD.R7, levels = colnames(coef(fit))) 
-contr
-#finding differences, runs between two points for every gene, creates a line connecting two 
-tmp <- contrasts.fit(fit, contr) 
-tmp <- eBayes(tmp)
-top.table <- topTable(tmp, sort.by = "p", n = Inf)
-head(top.table, 20)
-length(which(top.table$adj.P.Val < 0.05))
-top.table$Gene <- rownames(top.table)
-top.table <- top.table[,c("Gene", names(top.table)[1:6])]
-write.table(top.table, file = "R_D1vD7_onefactor.csv", row.names = F, sep = "\t", quote = F)
-input <- read.table("D1vD7one_factor.csv",sep=",",header=T)
-## or "input" can be the same as "top.table"
-df <- data.frame(input[,c(2,5)])
+# Step 6: Define contrasts and perform differential expression analysis
+contr <- makeContrasts(groupD.R1 - groupD.R7, levels = colnames(coef(fit)))  # Define contrast
+tmp <- contrasts.fit(fit, contr)  # Apply contrast
+tmp <- eBayes(tmp)  # Empirical Bayes moderation
+top.table <- topTable(tmp, sort.by = "p", n = Inf)  # Extract top genes
+length(which(top.table$adj.P.Val < 0.05))  # Count significant genes (FDR < 0.05)
 
-volSIG <- list()
-for (i in 1:nrow(df)) {
-  if (df[i,2]<0.05) {
-    volSIG <- rbind(df[i,],volSIG)
-  }
-}
+# Save results to file
+write.table(top.table, file = "R_D1vD7_onefactor.csv", row.names = FALSE, sep = "\t", quote = FALSE)
 
-# png('volcano1.png', 1200, 1200, type='cairo',res=220)
-plot(c(-6,-3,0,3,6),c(0,15,30,45,60),type="n",xlab="log2(Fold Change)",ylab="log2(p-value)")
-points(df[,1],-log2(df[,2]),pch=20,col="gray",cex=1)
-points(volSIG[,1],-log2(volSIG[,2]),pch=20,col="blue",cex=1)
-lines(c(0,0),c(-2,20),type="l",col="black",lwd=0.5,lty="dashed")
-lines(c(-10,10),c(-log2(0.05),-log2(0.05)),type="l",col="black",lwd=0.5,lty="dashed")
+# Step 7: Visualization (Volcano Plot)
+df <- data.frame(logFC = top.table$logFC, PValue = top.table$P.Value)
 
-##end of one factor model
+# Identify significant genes
+volSIG <- df[df$PValue < 0.05, ]
 
-#beginning of two factor
-treatmentT <- relevel(factor(treatment), "W")
-#Watered is reference
-mm <- model.matrix(~treatmentT*timepoint)
-colnames(mm)
-y <- voom(d, mm, plot = F)
-fit <- lmFit(y, mm)
-head(coef(fit))
-tmp <- contrasts.fit(fit, coef = 2) # Directly test second coefficient
+# Plot volcano plot
+plot(c(-6, 6), c(0, 15), type = "n", xlab = "log2(Fold Change)", ylab = "-log10(P-Value)")
+points(df$logFC, -log10(df$PValue), pch = 20, col = "gray")
+points(volSIG$logFC, -log10(volSIG$PValue), pch = 20, col = "blue")
+abline(h = -log10(0.05), col = "red", lty = 2)  # Add significance threshold line
+
+# Step 8: Two-factor model (e.g., treatment and timepoint interaction)
+treatmentT <- relevel(factor(treatment), "W")  # Relevel treatment to use "Watered" as reference
+mm <- model.matrix(~treatmentT * timepoint)  # Model matrix for interaction
+y <- voom(dT2, mm, plot = FALSE)  # Apply voom transformation
+fit <- lmFit(y, mm)  # Fit linear model
+
+# Perform differential expression analysis for specific coefficients
+tmp <- contrasts.fit(fit, coef = 2)  # Test second coefficient (e.g., treatment effect)
 tmp <- eBayes(tmp)
 top.table <- topTable(tmp, sort.by = "P", n = Inf)
-head(top.table, 20) #same model as before
-head(coef(fit))
-tmp <- contrasts.fit(fit, coef = 5) # Test cultivarI5:time9
-tmp <- eBayes(tmp)
-top.table <- topTable(tmp, sort.by = "P", n = Inf)
+
+# Output top significant genes
 head(top.table, 20)
-length(which(top.table$adj.P.Val < 0.05))
-batch <- factor(rep(rep(1:2, each = 2), 6))
-batch
-mm <- model.matrix(~0 + group + batch)
-y <- voom(d, mm, plot = F)
-fit <- lmFit(y, mm)
-contr <- makeContrasts(groupI5.6 - groupC.6, levels = colnames(coef(fit)))
-tmp <- contrasts.fit(fit, contr)
-tmp <- eBayes(tmp)
-top.table <- topTable(tmp, sort.by = "P", n = Inf)
-head(top.table, 20)
+
+# Save results for two-factor model
+write.table(top.table, file = "TwoFactorModelResults.csv", row.names = FALSE, sep = "\t", quote = FALSE)
+
