@@ -1,122 +1,118 @@
-https://statsandr.com/blog/descriptive-statistics-in-r/
-#reading in data
-#navigate to correct file, click to import, copy commands into doc
-view(dataset)
-#load tidyverse
+# **R Statistics and Data Analysis Script**
+
+# === 1. Data Import and Setup ===
+
+# Load necessary libraries
 library(tidyverse)
-#datasets already in R
+library(car)      # For checking normality
+library(rstatix)  # For summary stats and statistical tests
+
+# Import data (navigate to your file, import, and copy the generated code here)
+# Example:
+# dataset <- read.csv("path/to/your/file.csv")
+
+# View the dataset
+View(dataset)
+
+# Check available datasets in R
 data()
-#overall variable summary 
-glimpse()
 
-#descriptive stats
-mean(), median(), mfv()[modeest], range(), 
-min(), maximum(), sd(), quantile(),
-IQR()
+# Get an overview of the dataset
+glimpse(dataset)
 
-#correlation
-cor(dat$Sepal.Length, dat$Sepal.Width)
+# === 2. Descriptive Statistics ===
 
-#to subset a dataframe based on a filter
-new_data <- filter(data, column > 5)
-new_data <- data %>%
-  filter(column == "value") 
-##Use mutate() to create a new column from existing data by performing a calculation or other command##
-data %>%
-  mutate(newcolumn = oldcolumn / 1000)
-#find mean and median of specific column within dataframe
-mean <- mpg %>%
+# Summary statistics for a column
+mean(dataset$column_name)
+median(dataset$column_name)
+range(dataset$column_name)  # Returns min and max as a vector
+min(dataset$column_name)
+max(dataset$column_name)
+sd(dataset$column_name)     # Standard deviation
+quantile(dataset$column_name)  # Quartiles
+IQR(dataset$column_name)       # Interquartile range
+
+# === 3. Data Subsetting and Transformation ===
+
+# Subset data based on a condition
+new_data <- dataset %>% filter(column_name > 5)
+
+# Create a new column using mutate()
+dataset <- dataset %>% mutate(new_column = old_column / 1000)
+
+# Group data and calculate mean
+grouped_mean <- dataset %>%
   group_by(class) %>%
-  summarise(mean(cty))
+  summarise(mean_value = mean(column_name, na.rm = TRUE))
 
-#turning quantitative to qualitative 
-ifelse 
+# Convert quantitative to qualitative data
+dataset <- dataset %>% mutate(qualitative_column = ifelse(column_name > 50, "High", "Low"))
 
-#check normality 
-library(car) # package must be installed first
-qqPlot(dat$Sepal.Length)
+# === 4. Check Normality ===
 
-#data visualization 
-#first example - histogram (frequencies)
-#you can layer things
-ggplot(mpg, aes(x=cty)) + 
-  geom_histogram()
-#scatterplot with regression line
-ggplot(mpg, aes(x=cty,
-                y=hwy))+
-  geom_point()+
-  geom_smooth(method = "lm")+
-  labs(title = "blanK",
-       x = )
-#scatterplot, grouped by class - needs geom_point for scatterplot
-#with all of these, runs regressions for each class
-cars
-ggplot(cars, aes(x=speed,
-                y=dist,
-                fill = class))+
-  geom_point()+
-  geom_smooth(method = "lm")
+# Q-Q plot for normality
+qqPlot(dataset$column_name)
 
-#barchart - only works using original dataset
-ggplot(mpg, aes(x = class,
-                y = cty, 
-                fill = class))+
- stat_summary_bin(fun = "mean", geom = "bar")
+# Shapiro-Wilk test for normality
+dataset %>%
+  group_by(group_column) %>%
+  shapiro_test(column_name)
 
-#taking from dataset where stats were already applied
-p <- ggplot(mean, 
-            aes(x=class,
-                y=cty,
-                fill=class)) + 
-  geom_bar(stat="identity")
+# === 5. Data Visualization ===
 
-p + scale_fill_brewer(palette="Paired") + theme_classic()
+# Histogram
+ggplot(dataset, aes(x = column_name)) +
+  geom_histogram(binwidth = 5) +
+  labs(title = "Histogram", x = "Column Name", y = "Frequency")
 
-#regression analyses:
-#simple linear
-ggplot(cars, aes(x=speed,
-                 y=dist))+
-  geom_point()+
-  geom_smooth(method = "lm")
-model1 <- lm(dist ~ speed, data = cars)
+# Scatterplot with regression line
+ggplot(dataset, aes(x = independent_var, y = dependent_var)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Scatterplot with Regression Line", x = "X-axis Label", y = "Y-axis Label")
+
+# Bar chart of means grouped by a variable
+ggplot(dataset, aes(x = class, y = column_name, fill = class)) +
+  stat_summary(fun = "mean", geom = "bar") +
+  labs(title = "Bar Chart of Means", x = "Class", y = "Mean Value")
+
+# === 6. Regression Analysis ===
+
+# Simple linear regression
+model1 <- lm(dependent_var ~ independent_var, data = dataset)
 summary(model1)
 
-#multiple linear
-ggpairs(df)
-#run model
-plots(model) - check assumptions 
-#what does it mean?
-#estimate - rise over run when others left in model
-#P-value: reject null that coefficient is equal to zero
+# Multiple linear regression
+model2 <- lm(dependent_var ~ independent_var1 + independent_var2, data = dataset)
+summary(model2)
 
-#removing outliers (in one column):
-outliers <- boxplot(mpg$cty)$out
-x <- mpg
-x <- x[-which(x$cty %in% outliers),]
+# Check assumptions of regression
+plot(model2)
 
-#t-test and assumptions:
-#tests for equality of means
-#welch t-test does not assume equal sample sizes or equal variances
-#if variances are equal, correct and make it pooled t-test
-#view boxplot 
-ggplot(blocks, aes(x=independent variable
-                   y = dependent variable))+
-  geom_boxplot()
+# === 7. Outlier Removal ===
 
-#check summary stats
-library(rstatix)
-ancova %>%
-  group_by(Race) %>%
-  get_summary_stats(AgeAdjGrimAge2)
+# Identify outliers in a column
+outliers <- boxplot(dataset$column_name, plot = FALSE)$out
 
-#check for normality 
-ancova %>%
-  group_by(CTQ_Group) %>%
-  shapiro_test(AgeAdjGrimAge)
+# Remove outliers from the dataset
+cleaned_data <- dataset %>% filter(!column_name %in% outliers)
 
-#check for equal variances 
-ancova %>% levene_test(AgeAdjGrimAge ~ AUD_Group)
+# === 8. T-Test ===
 
-#run t-test, alternative if one-sided
-t.test(AgeAdjGrimAge2 ~ Sex, data=ancova, var.equal = FALSE, alternative = "greater")
-t.test(data$IV, data$IV, paired = TRUE)
+# Run Welch's t-test (default: unequal variances)
+t.test(column_name ~ group, data = dataset, var.equal = FALSE)
+
+# Run paired t-test
+t.test(dataset$column1, dataset$column2, paired = TRUE)
+
+# === 9. Checking Assumptions for Statistical Tests ===
+
+# Boxplot for visualizing group differences
+ggplot(dataset, aes(x = group_column, y = column_name)) +
+  geom_boxplot() +
+  labs(title = "Boxplot", x = "Group", y = "Value")
+
+# Levene's test for equal variances
+dataset %>%
+  levene_test(column_name ~ group_column)
+
