@@ -1,0 +1,73 @@
+# Analysis of Relationships and Regression Models
+
+# Question 1: Inspect Variables in mtcars 
+# Variables: disp, hp, drat, qsec
+# Goal: Identify pairs that appear to be correlated
+
+# Pairwise scatterplots
+pairs(mtcars[, c("disp", "hp", "drat", "qsec")],
+      main = "Pairwise Scatterplots of Selected Variables")
+
+# Observations:
+# - `disp` and `hp` appear to be correlated
+# - `disp` and `drat` appear to be correlated
+# - `hp` and `qsec` appear to have some correlation
+
+# Question 2: Linear Models with Interaction Terms 
+
+# Model without interaction terms
+mod2 <- lm(mpg ~ disp + hp + drat + qsec, data = mtcars)
+
+# Model with interaction terms
+mod3 <- lm(mpg ~ disp + hp + drat + qsec + disp:hp + disp:drat + hp:qsec, data = mtcars)
+
+# Question 3: Compare Model Fits
+
+# Summaries of both models
+summary(mod2)
+summary(mod3)
+
+# Observations:
+# The model with interaction terms (mod3) has a better fit based on adjusted R-squared.
+
+# Question 4: Polynomial Regression on airquality Data 
+
+# Load the airquality dataset
+data("airquality")
+
+# Scatterplot of Temp vs. Ozone
+plot(airquality$Temp, airquality$Ozone,
+     main = "Scatterplot of Temp vs. Ozone",
+     xlab = "Temperature",
+     ylab = "Ozone")
+
+# Polynomial regression (degree 2)
+poly_mod <- lm(Ozone ~ poly(Temp, degree = 2), data = airquality)
+
+# Predictions for the polynomial regression
+temp_seq <- seq(from = min(airquality$Temp, na.rm = TRUE), 
+                to = max(airquality$Temp, na.rm = TRUE), 
+                by = 0.1)
+poly_preds <- predict(poly_mod, newdata = data.frame(Temp = temp_seq))
+
+# Add polynomial regression line to the plot
+lines(temp_seq, poly_preds, col = "red", lwd = 2)
+legend("topright", legend = "Polynomial Regression (degree 2)", col = "red", lwd = 2)
+
+# Question 5: Spline Regression on airquality Data
+
+# Spline regression with specified knots
+library(splines)
+knots <- quantile(airquality$Temp, c(0.25, 0.5, 0.75), na.rm = TRUE)
+spline_mod <- lm(Ozone ~ bs(Temp, knots = knots), data = airquality)
+
+# Predictions for the spline regression
+spline_preds <- predict(spline_mod, newdata = data.frame(Temp = temp_seq))
+
+# Plot spline regression curve
+plot(airquality$Temp, airquality$Ozone,
+     main = "Scatterplot of Temp vs. Ozone with Spline Fit",
+     xlab = "Temperature",
+     ylab = "Ozone")
+lines(temp_seq, spline_preds, col = "blue", lwd = 2)
+legend("topright", legend = "Spline Regression", col = "blue", lwd = 2)
