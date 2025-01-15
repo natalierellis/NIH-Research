@@ -1,0 +1,111 @@
+# **Analysis of Alcohol-Related Phenotypes and Epigenetic Age Acceleration (EAA)**
+# These scripts represent analyses performed to explore the association of alcohol-related phenotypes
+# with epigenetic age acceleration (EAA) using published epigenetic clocks (e.g., PhenoAge, GrimAge).
+# **Note**: We first calculated each patient's epigenetic age, a proxy for biological age, using published model parameters or https://dnamage.clockfoundation.org/. 
+# Here, we are running models to understand whether alcohol-related features are associated with epigenetic age acceleration.
+# Datasets are not included to protect Protected Health Information (PHI/PII).
+
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+
+# === Overview of Epigenetic Clocks ===
+# - Epigenetic clocks calculate biological age using methylation sites and clinical factors.
+# - GrimAge (Version 1 & 2) and PhenoAge were used to calculate patients' epigenetic ages.
+# - Age-adjusted epigenetic age (EAA) was used as the primary outcome variable.
+
+# === Data Import ===
+# Example structure of EAA data (columns include GGT, ALT, AST, alcohol consumption, and covariates)
+EAA <- F[, c(2, 218, 217, 171, 219, 220, 221, 222, 209, 176, 175, 174, 173, 172, 169, 166, 38, 39, 40, 41, 42)]
+
+# === GGT and EAA Analysis ===
+# Quantile and histogram analysis for GGT, ALT, and AST
+quantile(EAA$GGT, na.rm = TRUE)
+quantile(EAA$ALT, na.rm = TRUE)
+hist(EAA$ALT)
+
+# Grouping by extreme GGT levels
+EAA$Grouping <- ifelse(EAA$GGT <= 20, "Lowest",
+                       ifelse(EAA$GGT >= 83, "Highest", "Unneeded"))
+
+# Filter dataset to include only needed rows
+EAA <- EAA[!(EAA$Grouping %in% "Unneeded"), ]
+
+# Linear regression models to assess association between GGT and EAA
+mod1 <- lm(AgeAdjustedGrimAge ~ relevel(as.factor(Grouping), ref = "Lowest") +
+             relevel(as.factor(AUD_Group.y), ref = "HC") + race1 + CD8T + CD4T + NK + Mono +
+             Bcell + Female.y + FTND_SmokingStatus + BMI, data = EAA)
+summary(mod1)
+
+mod2 <- lm(AgeAdjustedGrimAge2 ~ relevel(as.factor(Grouping), ref = "Lowest") +
+             relevel(as.factor(AUD_Group.y), ref = "HC") + race1 + CD8T + CD4T + NK + Mono +
+             Bcell + Female.y + FTND_SmokingStatus + BMI, data = EAA)
+summary(mod2)
+
+# === Alcohol Consumption and EAA Analysis ===
+# Explore alcohol consumption variables
+quantile(EAA$HeavyDrinkDays, na.rm = TRUE)
+hist(EAA$HeavyDrinkDays)
+quantile(EAA$TotalDrinks, na.rm = TRUE)
+
+# Grouping by extreme alcohol consumption
+EAA$Grouping <- ifelse(EAA$TotalDrinks <= 37, "Lowest",
+                       ifelse(EAA$TotalDrinks >= 923.25, "Highest", "Unneeded"))
+
+# Filter dataset to include only relevant rows
+EAA <- EAA[!(EAA$Grouping %in% "Unneeded"), ]
+
+# Linear regression models to assess association between alcohol consumption and EAA
+mod3 <- lm(AgeAdjustedGrimAge ~ relevel(as.factor(Grouping), ref = "Lowest") +
+             race1 + CD8T + CD4T + NK + Mono + Bcell + Female.y +
+             FTND_SmokingStatus + BMI, data = EAA)
+summary(mod3)
+
+mod4 <- lm(AgeAdjustedGrimAge2 ~ relevel(as.factor(Grouping), ref = "Lowest") +
+             race1 + CD8T + CD4T + NK + Mono + Bcell + Female.y +
+             FTND_SmokingStatus + BMI, data = EAA)
+summary(mod4)
+
+# === Subgroup Analysis: AUD Patients Only ===
+AUD <- EAA[EAA$AUD_Group.y == 'AUD+', ]
+
+# Grouping by number of drinking days
+AUD$Grouping <- ifelse(AUD$NoOfDrinkDays <= 61, "Lowest",
+                       ifelse(AUD$NoOfDrinkDays >= 90, "Highest", "Unneeded"))
+AUD <- AUD[!(AUD$Grouping %in% "Unneeded"), ]
+
+# Linear regression models for AUD subgroup
+mod_aud1 <- lm(AgeAdjustedGrimAge ~ Grouping + race1 + CD8T + CD4T + NK + Mono +
+                 Bcell + Female.y + FTND_SmokingStatus + BMI, data = AUD)
+summary(mod_aud1)
+
+mod_aud2 <- lm(AgeAdjustedGrimAge2 ~ Grouping + race1 + CD8T + CD4T + NK + Mono +
+                 Bcell + Female.y + FTND_SmokingStatus + BMI, data = AUD)
+summary(mod_aud2)
+
+# === Descriptive Statistics ===
+# Relationship between chronological age and EAA
+EAA <- F[, c(165, 2, 218, 217, 171, 219, 220, 221, 222, 209, 176, 175, 174, 173, 172, 169, 166, 38, 39, 40, 41, 42)]
+EAA <- EAA[EAA$AUD_Group.y == 'AUD+', ]
+
+# Visualize the relationship
+ggplot(EAA, aes(x = Age.y, y = AgeAdjustedGrimAge)) +
+  geom_point() +
+  theme_bw() +
+  labs(x = "Chronological Age", y = "Age-Adjusted Epigenetic Age")
+
+# Mean EAA by age bins
+EAA %>%
+  ggplot(aes(x = Age.y, y = AgeAdjustedGrimAge)) +
+  stat_summary(fun = mean, geom = "bar", fill = "#34cfa1") +
+  stat_summary(fun.data = "mean_se", geom = "errorbar", width = 0.1) +
+  ylab("Age-Adjusted Epigenetic Age") +
+  xlab("Age Bins") +
+  theme_minimal()
+
+# Notes 
+# - Before applying the epigenetic clocks, we determined each patient's epigenetic age as a proxy for biological age.
+# - This script explores associations between alcohol-related features and epigenetic age acceleration (EAA).
+# - Datasets are excluded from this repository to protect Protected Health Information (PHI/PII).
+# - Visualizations were used for descriptive purposes, while regression models provided adjusted analyses.
+# - These analyses were exploratory, with research questions evolving based on feedback from the PI.
