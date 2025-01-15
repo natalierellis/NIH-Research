@@ -1,0 +1,96 @@
+# **General Data Cleaning Commands**
+# These are commands I learned and used during data analysis at the NIH.
+# The commands are designed for cleaning and preparing NIH datasets.
+# **Note**: The datasets used for these tasks contained Protected Health Information (PHI/PII) and are therefore not included in this repository. 
+# This script serves as a reference for the type of data cleaning work I performed.
+
+# File Import and Export 
+
+# Import Excel file
+library(readxl)
+metac <- read_excel("/Users/ellisnr/Desktop/Metabolite_Data.xlsx")
+
+# Export dataframe to CSV
+write.csv(metac, "/Users/ellisnr/Desktop/metaclean.csv", row.names = TRUE)
+
+# Export dataframe to Excel
+install.packages("writexl")
+library(writexl)
+write_xlsx(values_V1, "/Users/ellisnr/Desktop/values_V1.xlsx")
+
+# Working with Column and Row Names
+
+# Remove the first character from all row names in a dataframe
+rownames(results) <- substring(rownames(results), 2)
+
+# Remove the first character from specific columns in a dataframe
+results <- results %>% mutate(across(c('ID'), substr, 2, nchar(ID)))
+
+# Change the first column name
+colnames(test)[1] <- "Grouping"
+
+# Convert the first column to row names
+rownames(FINAL) <- FINAL$Row.names
+rownames(methyl_PhenoAge) <- methyl_PhenoAge[, 1]
+
+# Convert the first row to column names
+colnames(sample) <- sample[1, ]
+
+# Remove a specific column
+metac2 <- subset(metac2, select = -c(X.1))
+
+# Remove a row based on its row name
+Transformation <- Transformation[!(row.names(Transformation) %in% patients), ]
+
+# Subsetting and Selecting Data 
+
+# Subset dataframe by multiple column names
+ancova_test <- select(sample, "ID", "FTND_SmokingStatus")
+
+# Subset and keep specific columns from a dataframe
+results <- subset(results, select = c('SID', 'Age', 'DNAmPhenoAge'))
+
+# Subset and exclude specific columns from a dataframe
+select(surveys, -record_id, -species_id)
+
+# Keep rows that meet specific criteria using filter()
+Smoking_sample <- try %>%
+  filter(FTND_SmokingStatus == "Smoker") %>%
+  select(ID, AgeAdjustedGrimAge2, AgeAdjustedGrimAge)
+
+# Combine `select()` and `filter()` for more refined subsetting
+meta %>%
+  filter(is.na(LDL_Cholesterol_D1) & is.na(LDL_Cholesterol_D2)) %>%
+  select(MRN, LDL_Cholesterol_D1, LDL_Cholesterol_D2)
+
+# Data Type Conversions 
+
+# Convert an entire dataframe from character to numeric
+methyl_PhenoAge_try <- mutate_all(methyl_PhenoAge_try, function(x) as.numeric(as.character(x)))
+
+# Convert a specific column from character to numeric
+all1$residuals <- as.numeric(as.character(all1$residuals))
+
+# Convert a matrix into a dataframe
+df <- as.data.frame(beta)
+
+# Sorting and Merging 
+
+# Sort a dataframe based on the increasing numerical order of column names
+new_order <- sort(colnames(all))
+all <- all[, new_order]
+
+# Merge two dataframes based on a common column
+ancova <- merge(EAA, sample, by = "ID")
+
+# Creating and Mutating Columns 
+
+# Create a new column from an existing column
+surveys <- surveys %>%
+  mutate(weight_kg = weight / 1000)
+
+# Remove rows with NA values before creating a new column
+surveys <- surveys %>%
+  filter(!is.na(weight)) %>%
+  mutate(weight_kg = weight / 1000)
+
