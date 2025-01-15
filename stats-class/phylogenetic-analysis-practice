@@ -1,0 +1,70 @@
+# Phylogenetic Tree Analysis and Tree Discordance Measurement
+# This script compares tree discordance between two alignments of the same gene (TNF).
+# Alignments are matched and trimmed to ensure comparable trees.
+
+# Load required libraries
+library(phangorn)
+library(phytools)
+library(ape)
+
+# Step 1: Build Tree Topology from UCSC Alignment 
+# Read alignment data
+dat_ucsc <- read.phyDat("TNF (1).fasta", type = "AA", format = "fasta")
+
+# Calculate pairwise distances
+dm_ucsc <- dist.ml(dat_ucsc)
+
+# Build a distance-based starter tree
+tree_ucsc <- fastme.bal(dm_ucsc)
+
+# Optimize tree using maximum likelihood
+fit_ucsc <- pml(tree_ucsc, dat_ucsc, k = 4, inv = 0.2)
+fit_ucsc <- optim.pml(fit_ucsc, optNni = TRUE, optGamma = TRUE, optInv = TRUE, model = "LG")
+
+# Reroot the tree with a specified outgroup
+tree_ucsc_rooted <- root.phylo(fit_ucsc$tree, outgroup = "monDom5", resolve.root = TRUE)
+
+# Plot the rooted tree
+plot(tree_ucsc_rooted)
+title(main = "TNF UCSC Alignment", font.main = 2)
+
+# Step 2: Build Tree Topology from Hiller Alignment ===
+# Read alignment data
+dat_hiller <- read.phyDat("TNF (1).phy", type = "AA", format = "phy")
+
+# Calculate pairwise distances
+dm_hiller <- dist.ml(dat_hiller)
+
+# Build a distance-based starter tree
+tree_hiller <- fastme.bal(dm_hiller)
+
+# Optimize tree using maximum likelihood
+fit_hiller <- pml(tree_hiller, dat_hiller, k = 4, inv = 0.2)
+fit_hiller <- optim.pml(fit_hiller, optNni = TRUE, optGamma = TRUE, optInv = TRUE, model = "LG")
+
+# Reroot the tree with a specified outgroup
+tree_hiller_rooted <- root.phylo(fit_hiller$tree, outgroup = "monDom5", resolve.root = TRUE)
+
+# Plot the rooted tree
+plot(tree_hiller_rooted)
+title(main = "TNF Hiller Alignment", font.main = 2)
+
+# Step 3: Match and Trim Trees ===
+# Identify common tip labels between the two trees
+common_tips <- tree_hiller_rooted$tip.label[
+  tree_hiller_rooted$tip.label %in% tree_ucsc_rooted$tip.label
+]
+
+# Trim both trees to include only the common tips
+tree_ucsc_trimmed <- drop.tip(tree_ucsc_rooted, setdiff(tree_ucsc_rooted$tip.label, common_tips))
+tree_hiller_trimmed <- drop.tip(tree_hiller_rooted, setdiff(tree_hiller_rooted$tip.label, common_tips))
+
+# Step 4: Measure Tree Discordance ===
+# Calculate Robinson-Foulds distance (ignoring branch lengths)
+rf_distance <- RF.dist(tree_ucsc_trimmed, tree_hiller_trimmed)
+cat("Robinson-Foulds Distance (Ignoring Branch Lengths):", rf_distance, "\n")
+
+# Calculate weighted Robinson-Foulds distance (using branch lengths)
+weighted_rf_distance <- wRF.dist(tree_ucsc_trimmed, tree_hiller_trimmed)
+cat("Weighted Robinson-Foulds Distance (Using Branch Lengths):", weighted_rf_distance, "\n")
+
