@@ -1,0 +1,57 @@
+# House Prices Modeling Task
+# Objective: Build the best-fitting model based on R-squared using various features of house data.
+# Note: This script omits exploratory analyses performed to understand the data.
+# Reflection: Using 19 features likely caused overfitting, but this was a fun learning experience.
+
+# Load the House Prices dataset
+HP <- read.csv("HousePrices.csv")
+
+# Data Preprocessing
+
+# Remove variables that are not relevant or do not contribute to the analysis
+HP <- HP[, -c(1, 14, 15:16)]
+
+# Remove outliers (houses priced above $6 million)
+HP <- HP[HP$price < 6e+06, ]
+
+#Feature Selection
+
+# Load required library
+library(leaps)
+
+# Perform exhaustive feature selection to evaluate the best subset of features
+exhaustive_mod <- regsubsets(price ~ ., data = HP, method = "exhaustive", nvmax = 19, really.big = TRUE)
+exhaustive_summary <- summary(exhaustive_mod)
+
+# Identify the best model based on different criteria
+best_adjr2 <- which.max(exhaustive_summary$adjr2)  # Model with the highest adjusted R-squared
+best_bic <- which.min(exhaustive_summary$bic)      # Model with the lowest BIC
+best_cp <- which.min(exhaustive_summary$cp)        # Model with the lowest Cp
+
+# Display results
+cat("Best model based on adjusted R-squared:", best_adjr2, "\n")
+cat("Best model based on BIC:", best_bic, "\n")
+cat("Best model based on Cp:", best_cp, "\n")
+print(exhaustive_summary)
+
+# Convert Categorical Variables to Dummy Variables
+
+# Load required library
+library(caret)
+
+# Create dummy variables for categorical features
+dummy <- dummyVars(" ~ .", data = HP)
+HP_dummy <- data.frame(predict(dummy, newdata = HP))
+
+# Build a Linear Model
+
+# Fit a linear regression model with selected features
+linear_mod <- lm(price ~ yr_built +
+                   bedrooms^2 * sqft_living * sqft_above * waterfront * view *
+                   cityClyde.Hill + cityBellevue + cityKirkland +
+                   cityMedina + cityMercer.Island + cityRedmond +
+                   citySeattle + citySammamish + cityIssaquah, 
+                 data = HP_dummy)
+
+# Display the model summary
+summary(linear_mod)
