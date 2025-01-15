@@ -1,0 +1,64 @@
+# Analysis with Faithful Dataset and Machine Learning Models
+# The AnAge data is no longer accessible, so we focus on the Faithful dataset in this script.
+
+# Question 1: K-Means Clustering on Faithful Data 
+library(tidyverse)
+
+# Load and view the Faithful dataset
+# This dataset comes pre-installed with R and provides data on Old Faithful geyser eruptions.
+data(faithful)  # Loads the dataset into R
+View(faithful)  # Opens the data viewer window
+
+# Plot data to visualize potential clusters
+ggplot(faithful, aes(x = waiting, y = eruptions)) +
+  geom_point() +
+  labs(title = "Faithful Data: Initial Visualization", x = "Waiting Time", y = "Eruption Duration")
+
+# Apply k-means clustering
+kvals <- kmeans(faithful, centers = 2)
+
+# Add cluster assignments to the dataset
+faithful$cluster <- as.factor(kvals$cluster)
+
+# Plot clusters with k-means centers
+ggplot(faithful, aes(x = waiting, y = eruptions, color = cluster)) +
+  geom_point() +
+  geom_point(data = as.data.frame(kvals$centers), aes(x = waiting, y = eruptions), 
+             color = "red", shape = 4, size = 4) +
+  labs(title = "K-Means Clustering on Faithful Data", x = "Waiting Time", y = "Eruption Duration")
+
+# Conclusion: The clusters appear reasonable based on the plotted data.
+
+# Question 2: Principal Component Analysis (PCA) on Faithful Data ===
+# Calculate principal components
+pcs <- prcomp(faithful, scale. = TRUE)
+summary(pcs)
+
+# Add PC1 and PC2 to the dataset
+faithful$PC1 <- pcs$x[, 1]
+faithful$PC2 <- pcs$x[, 2]
+
+# Visualize data with PC1 and PC2
+ggplot(faithful, aes(x = eruptions, y = waiting, size = PC1, color = PC2)) +
+  geom_point() +
+  labs(title = "Faithful Data: PCA Visualization", x = "Eruption Duration", y = "Waiting Time")
+
+# Define clusters based on PC1 and PC2
+faithful$PC1_cluster <- ifelse(faithful$PC1 > mean(faithful$PC1), "1", "2")
+faithful$PC2_cluster <- ifelse(faithful$PC2 > mean(faithful$PC2), "1", "2")
+
+# Visualize clusters based on PC1
+ggplot(faithful, aes(x = eruptions, y = waiting, color = PC1_cluster)) +
+  geom_point() +
+  labs(title = "Clusters Based on PC1", x = "Eruption Duration", y = "Waiting Time")
+
+# Visualize clusters based on PC2
+ggplot(faithful, aes(x = eruptions, y = waiting, color = PC2_cluster)) +
+  geom_point() +
+  labs(title = "Clusters Based on PC2", x = "Eruption Duration", y = "Waiting Time")
+
+# Conclusion: The clusters based on both PC1 and PC2 appear to represent meaningful divisions of the data.
+
+# Note: AnAge Data
+# The AnAge dataset previously used for random forest and neural network models is no longer accessible.
+# This script now focuses on the Faithful dataset for clustering and PCA analysis.
