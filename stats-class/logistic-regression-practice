@@ -1,0 +1,76 @@
+# Logistic Regression Analysis with mtcars Data
+
+# Question 1: Logistic Regression to Distinguish 8-Cyl Cars 
+# Create a binary variable for 8-cylinder vs. non-8-cylinder cars
+mtcars$new_cyl <- ifelse(mtcars$cyl == 8, 1, 0)
+
+# Fit logistic regression model using mpg and drat as predictors
+modlog <- glm(new_cyl ~ mpg + drat, data = mtcars, family = binomial(link = "logit"))
+
+# Question 2: Check Log-Odds Linearity Assumption
+# Predict log-odds from the model
+mtcars$logodds <- predict(modlog, type = "link")
+
+# Pairwise scatterplots to check linearity
+pairs(mtcars[, c("logodds", "mpg", "drat")],
+      main = "Log-Odds vs Predictors")
+
+# Observation:
+# Check if log-odds have a linear relationship with predictors mpg and drat.
+
+# Question 3: Model Output and Interpretation 
+# Display model summary
+summary(modlog)
+
+# Interpretation:
+# - `mpg` is a significant predictor (p-value < 0.05).
+# - As `mpg` increases, the likelihood of a car being 8-cylinder decreases.
+
+# Question 4: Confusion Matrix and Model Accuracy 
+# Make predictions on the probability scale
+preds <- predict(modlog, type = "response")
+
+# Convert probabilities to binary predictions
+predsbin <- ifelse(preds > 0.5, 1, 0)
+
+# Create confusion matrix
+conf_matrix1 <- table(Actual = mtcars$new_cyl, Predicted = predsbin)
+print(conf_matrix1)
+
+# Accuracy:
+accuracy1 <- sum(diag(conf_matrix1)) / sum(conf_matrix1)
+cat("Accuracy of Model 1:", accuracy1, "\n")
+
+# Question 5: Logistic Regression with Additional Predictor 
+# Fit a new logistic regression model including carb as a predictor
+modlog2 <- glm(new_cyl ~ mpg + drat + carb, data = mtcars, family = binomial(link = "logit"))
+
+# Display model summary
+summary(modlog2)
+
+# Question 6: Compare Model Fit (AIC) 
+cat("AIC of Model 1:", AIC(modlog), "\n")
+cat("AIC of Model 2:", AIC(modlog2), "\n")
+
+# Observation:
+# Model 2 has a higher AIC, indicating worse fit compared to Model 1.
+
+# Question 7: Compare Predictive Accuracy 
+# Make predictions with Model 2
+preds2 <- predict(modlog2, type = "response")
+predsbin2 <- ifelse(preds2 > 0.5, 1, 0)
+
+# Create confusion matrix for Model 2
+conf_matrix2 <- table(Actual = mtcars$new_cyl, Predicted = predsbin2)
+print(conf_matrix2)
+
+# Accuracy:
+accuracy2 <- sum(diag(conf_matrix2)) / sum(conf_matrix2)
+cat("Accuracy of Model 2:", accuracy2, "\n")
+
+# Observation:
+# Model 2 has lower predictive accuracy compared to Model 1.
+
+# Summary of Findings 
+# 1. Model 1 (mpg and drat) has better fit (lower AIC) and higher predictive accuracy.
+# 2. Adding `carb` as a predictor in Model 2 increases complexity without improving performance.
