@@ -6,17 +6,12 @@ This repository contains scripts developed to analyze the association between al
 
 ## **Purpose of the Analyses**
 
-Epigenetic age, as calculated using epigenetic clocks like GrimAge Version 1 and GrimAge Version 2, is considered a proxy for biological age [1,2]. Epigenetic age acceleration (EAA) represents the difference between epigenetic age and chronological age, with positive EAA values indicating faster biological aging [3]. 
+Epigenetic age, as calculated using clocks like GrimAge Version 1 and GrimAge Version 2, serves as a proxy for biological age, with epigenetic age acceleration (EAA) representing the difference between epigenetic and chronological age [1,2]. Positive EAA values indicate faster biological aging [3]. Previous research has established that Alcohol Use Disorder (AUD) is associated with EAA calculated using PhenoAge and GrimAge Version 1; however, its relationship with EAA calculated using GrimAge Version 2 has not yet been explored [4]. Our analysis focuses on GrimAge Version 1 and GrimAge Version 2 to assess whether GrimAge Version 2 provides improved insights as an epigenetic clock.
 
 The goal of these analyses is to:
-1. **Validate original published models** (e.g., GrimAge, PhenoAge) in a diverse cohort, as our patient data included approximately 50% European American and 50% African American participants.
-2. **Assess whether alcohol-related phenotypes** (e.g., heavy drinking days, total drinks, liver enzyme levels) are associated with EAA.
-3. **Determine the independent contribution of alcohol-related phenotypes to EAA after accounting for potential confounders** (e.g., smoking status, BMI, race, immune cell proportions).
-
-By including covariates, the models:
-- **Control for confounding**: Ensuring that the observed relationship between alcohol-related phenotypes and EAA is not misattributed to other factors like smoking or BMI.
-- **Test adjusted effects**: Identifying whether alcohol-related phenotypes independently explain EAA.
-- **Explore potential pathways**: Providing insights into whether alcohol-related phenotypes may drive or contribute to accelerated epigenetic aging.
+1. **Validate and evaluate the performance of GrimAge Version 1 and Version 2** in a diverse cohort, as our patient data included approximately 50% European American and 50% African American participants.
+2. **Investigate associations between alcohol-related phenotypes** (e.g., heavy drinking days, total drinks, liver enzyme levels) and EAA calculated using GrimAge Version 1 and Version 2.
+3. **Examine the independent contributions of alcohol-related phenotypes to EAA**  while controlling for potential confounders such as smoking status, BMI, race, and immune cell proportions, to explore the mechanisms driving epigenetic aging.
 
 These analyses are exploratory in nature and aim to generate hypotheses about the biological mechanisms linking alcohol consumption, demographic diversity, and aging.
 
