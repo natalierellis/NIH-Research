@@ -1,4 +1,4 @@
-# **Epigenetic Age Analysis and Data Visualization**
+# **Epigenetic Age Analysis of Alcoholic Cohorts**
 
 This repository contains scripts developed to analyze the association between alcohol-related phenotypes and epigenetic age acceleration (EAA). The analyses explore various factors, such as alcohol consumption, liver enzyme levels, and demographic covariates, using statistical models, machine learning, and data visualizations.
 
@@ -6,7 +6,7 @@ This repository contains scripts developed to analyze the association between al
 
 ## **Purpose of the Analyses**
 
-Epigenetic age, as calculated using epigenetic clocks like GrimAge and PhenoAge, is considered a proxy for biological age. Epigenetic age acceleration (EAA) represents the difference between epigenetic age and chronological age, with positive EAA values indicating faster biological aging. 
+Epigenetic age, as calculated using epigenetic clocks like GrimAge Version 1 [1] and GrimAge Version 2 [2], is considered a proxy for biological age. Epigenetic age acceleration (EAA) represents the difference between epigenetic age and chronological age, with positive EAA values indicating faster biological aging [3]. 
 
 The goal of these analyses is to:
 1. **Validate original published models** (e.g., GrimAge, PhenoAge) in a diverse cohort, as our patient data included approximately 50% European American and 50% African American participants.
@@ -82,6 +82,9 @@ These analyses are exploratory in nature and aim to generate hypotheses about th
 
 ---
 
-## **Contact**
-For questions about this repository or analyses, please contact **[Your Name]**.
+## **References**
+1. Lu AT, Quach A, Wilson JG, et al. DNA methylation GrimAge strongly predicts lifespan and healthspan. Aging (Albany NY). 2019;11(2):303-327. doi:10.18632/aging.101684.
+2. Lu AT, Binder AM, Zhang J, et al. DNA methylation GrimAge version 2. Aging (Albany NY). 2022;14(23):9484-9549. doi:10.18632/aging.204434.
+3. Nwanaji-Enwerem JC, Weisskopf MG, Baccarelli AA. Multi-tissue DNA methylation age: molecular relationships and perspectives for advancing biomarker utility. Ageing Res Rev 2018; 45:15–23.
+
 
