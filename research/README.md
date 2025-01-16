@@ -10,7 +10,7 @@ Epigenetic age, as calculated using epigenetic clocks like GrimAge Version 1 and
 
 The goal of these analyses is to:
 1. **Validate original published models** (e.g., GrimAge, PhenoAge) in a diverse cohort, as our patient data included approximately 50% European American and 50% African American participants.
-2. **Assess whether alcohol-related phenotypes (e.g., heavy drinking days, total drinks, liver enzyme levels) are associated with EAA.**
+2. **Assess whether alcohol-related phenotypes** (e.g., heavy drinking days, total drinks, liver enzyme levels) are associated with EAA.
 3. **Determine the independent contribution of alcohol-related phenotypes to EAA after accounting for potential confounders** (e.g., smoking status, BMI, race, immune cell proportions).
 
 By including covariates, the models:
