@@ -81,5 +81,6 @@ These analyses are exploratory in nature and aim to generate hypotheses about th
 1. Lu AT, Quach A, Wilson JG, et al. DNA methylation GrimAge strongly predicts lifespan and healthspan. Aging (Albany NY). 2019;11(2):303-327. doi:10.18632/aging.101684.
 2. Lu AT, Binder AM, Zhang J, et al. DNA methylation GrimAge version 2. Aging (Albany NY). 2022;14(23):9484-9549. doi:10.18632/aging.204434.
 3. Nwanaji-Enwerem JC, Weisskopf MG, Baccarelli AA. Multi-tissue DNA methylation age: molecular relationships and perspectives for advancing biomarker utility. Ageing Res Rev 2018; 45:15–23.
+4. Jung J, McCartney DL, Wagner J, et al. Additive Effects of Stress and Alcohol Exposure on Accelerated Epigenetic Aging in Alcohol Use Disorder. Biol Psychiatry. 2023;93(4):331-341. doi:10.1016/j.biopsych.2022.06.036.
 
 
