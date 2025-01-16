@@ -20,58 +20,32 @@ These analyses are exploratory in nature and aim to generate hypotheses about th
 ## **Contents**
 
 ### 1. **Epigenetic Age Models**
+- Located in **`epigenetic_age_analysis.R`**
 - Scripts for running linear regression models assessing the association of:
   - **Liver enzyme levels** with EAA.
   - **Alcohol consumption variables** with EAA.
   - Subgroup analyses focused on Alcohol Use Disorder (AUD) patients.
 
 ### 2. **Predictive Modeling**
+- Located in **`predictive_modeling.R`**
 - Scaled variables and used predictive models to calculate mean EAA across subgroups (e.g., stratified by age, sex, and race).
 - Used the `predict()` function to estimate adjusted EAA values after controlling for covariates.
 
 ### 3. **Data Visualization**
+- Located in 
 - Generated various types of visualizations for analysis results:
   - **Bar plots**: Predicted EAA by subgroup (e.g., AUD status, age, sex).
   - **Forest plots**: Confidence intervals and effect sizes for key variables.
   - **Manhattan plots**: Highlighted significant associations in supplemental analyses.
   - **Scatterplots**: Explored relationships between continuous variables and EAA.
 
----
-
-## **Key Scripts and Files**
-
-### **Epigenetic Age Analysis**
-- **`epigenetic_age_analysis.R`**: Contains the main analyses for liver enzyme levels and alcohol consumption metrics.
-- **`predictive_modeling.R`**: Scripts for scaling variables, predicting EAA, and stratifying by demographic groups.
-
-### **Visualization Scripts**
-- **`visualization.R`**: Code for creating bar plots, scatterplots, and error bar visualizations.
-- **`manhattan_plots.R`**: Scripts for generating Manhattan plots for supplemental datasets.
-- **`forest_plot.R`**: Forest plot generation with confidence intervals and effect sizes.
-
 ### **Supplemental Data**
 - **`data/`**: Placeholder for input files, such as liver enzyme and alcohol metrics datasets. (Datasets are excluded to protect PII.)
 
 ---
 
-## **Usage**
-
-1. **Running Models**:
-   - Open `epigenetic_age_analysis.R` to run linear models on EAA for liver enzymes or alcohol consumption.
-   - For subgroup-specific predictions, use `predictive_modeling.R`.
-
-2. **Visualizations**:
-   - Customize plots by editing the scripts in `visualization.R`, `manhattan_plots.R`, and `forest_plot.R`.
-
-3. **Input Files**:
-   - Ensure data files are appropriately formatted and saved in the `data/` folder before running scripts.
-
----
-
 ## **Notes**
-- **Diverse Cohort**: This work aimed to validate published epigenetic clock models in a diverse cohort (approximately 50% European American and 50% African American) to assess their generalizability.
 - Datasets are excluded from this repository to protect Protected Health Information (PHI/PII).
-- These scripts were developed for exploratory analyses and visualization tasks.
 - Research questions evolved iteratively with feedback from collaborators and PIs.
 - Findings are intended to inform future research on the biological mechanisms of alcohol-related aging.
 
