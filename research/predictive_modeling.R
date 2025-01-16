@@ -1,11 +1,11 @@
-# === Predictive Modeling for Epigenetic Age Analysis ===
-# These scripts are examples of analyses conducted to compare GrimAge and GrimAge Version 2 as epigenetic clocks.
-# The overall goal was to assess whether GrimAge Version 2 provides better insights than GrimAge Version 1 in 
-# analyzing the association of alcohol-related phenotypes with epigenetic age acceleration (EAA).
-# We conducted these analyses across subgroups (e.g., age, sex, race, AUD status) and using various alcohol consumption 
-# metrics and liver enzyme levels. These scripts do not cover every model run but illustrate the type of exploratory analyses performed.
+# Predictive Modeling for Epigenetic Age Analysis 
+# These models and visualizations allow us to:
+# - Observe differences in predicted EAA across AUD and non-AUD groups.
+# - Evaluate whether GrimAge Version 2 offers improved insights over Version 1.
+# - Disentangle the effects of covariates (e.g., BMI, smoking status) from alcohol-related phenotypes.
+# - Generate hypotheses about the biological mechanisms linking alcohol consumption and aging.
 
-# === Libraries and Data Preparation ===
+# Libraries and Data Preparation
 library(dplyr)
 library(ggplot2)
 library(rstatix)
@@ -21,7 +21,7 @@ EAA$normalizedAge <- scale(EAA$Age.y)
 # Example: Restricting analyses to patients with AUD
 EAA_AUD <- EAA[EAA$AUD_Group.y == 'AUD+',]
 
-# === Linear Models to Predict EAA ===
+# Linear Models to Predict EAA
 # These models investigate the relationship between covariates and EAA as measured by GrimAge Version 1 and Version 2.
 
 # GrimAge Version 2 with covariates
@@ -38,7 +38,7 @@ predict_V2 <- merge(EAA, as.data.frame(predict_V2), by = 0, suffixes = c("", "_P
 # Stratify data by age group (e.g., Young vs. Old)
 predict_V2$AgeGrouping <- ifelse(predict_V2$Age.y >= 40, "Old", "Young")
 
-# === Visualization of Predicted EAA ===
+# Visualization of Predicted EAA
 # Calculate mean predicted EAA and confidence intervals for subgroups
 values_V2 <- predict_V2 %>%
   group_by(AgeGrouping, AUD_Group.y) %>%
@@ -67,9 +67,3 @@ ggsave(filename = "GrimAge_Version2_Predicted_EAA.png")
 # Repeat for GrimAge Version 1 (similar structure)
 # Example code for GrimAge Version 1 omitted for brevity but follows the same workflow.
 
-# === Insights ===
-# These models and visualizations allow us to:
-# - Observe differences in predicted EAA across AUD and non-AUD groups.
-# - Evaluate whether GrimAge Version 2 offers improved insights over Version 1.
-# - Disentangle the effects of covariates (e.g., BMI, smoking status) from alcohol-related phenotypes.
-# - Generate hypotheses about the biological mechanisms linking alcohol consumption and aging.
