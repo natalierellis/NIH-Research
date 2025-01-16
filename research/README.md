@@ -6,7 +6,7 @@ This repository contains scripts developed to analyze the association between al
 
 ## **Purpose of the Analyses**
 
-Epigenetic age, as calculated using epigenetic clocks like GrimAge Version 1 [1] and GrimAge Version 2 [2], is considered a proxy for biological age. Epigenetic age acceleration (EAA) represents the difference between epigenetic age and chronological age, with positive EAA values indicating faster biological aging [3]. 
+Epigenetic age, as calculated using epigenetic clocks like GrimAge Version 1 and GrimAge Version 2, is considered a proxy for biological age [1,2]. Epigenetic age acceleration (EAA) represents the difference between epigenetic age and chronological age, with positive EAA values indicating faster biological aging [3]. 
 
 The goal of these analyses is to:
 1. **Validate original published models** (e.g., GrimAge, PhenoAge) in a diverse cohort, as our patient data included approximately 50% European American and 50% African American participants.
